@@ -1,8 +1,8 @@
 #!/bin/sh
 
 usage() {
-    printf "%s" "\ 
-The backup script enables maintenance mode, backs up the data
+    printf "%s"\
+"The backup script enables maintenance mode, backs up the data
 and database and then disables maintenance mode.
 
 Usage: $1 [flags]
@@ -12,7 +12,7 @@ Flags:
 
     -n path             path to nextcloud directory on host (default: /var/lib/data/nextcloud)
 
-    -r repository       repository to backup to (default: $RESTIC_REPOSITORY)
+    -r repository       repository to backup to (default: \$RESTIC_REPOSITORY)
     -e pattern          exclude a pattern (default: )
 
     -d database         name of database to backup (default: nextcloud)
@@ -34,7 +34,6 @@ DB="nextcloud"
 DB_USER="nextcloud"
 DB_PASS=""
 
-
 while getopts n:r:e:d:u:p:h opt; do
     case $opt in
     n) NCPATH=$OPTARG;;
@@ -46,25 +45,46 @@ while getopts n:r:e:d:u:p:h opt; do
     h|?) usage ;; esac
 done
 
-### Enable Maintenance Mode
-/bin/sh ./maintenance-mode.sh -1
-### <<<<<<<<<<<<<<<<<<<<<<<
+### Enable Maintenance Mode {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/component=app -o name)
+kubectl exec -n nextcloud $POD -- \
+    su - -s '/bin/sh' www-data -c \
+        "php -d memory_limit=-1 \
+         /var/www/html/occ maintenance:mode --on" \
+    >/dev/null 2>&1 
+### }
 
+### Backup Nextcloud Data {
+restic backup                       \
+    --exclude="$RESTIC_EXCLUDE"     \
+    --repo="$RESTIC_REPOSITORY"     \
+    --verbose                       \
+    $NCPATH/config                  \
+    $NCPATH/data                    \
+    $NCPATH/themes                  
+### }
 
-# Backup Nextcloud Data
-restic backup \
-    --exclude="$RESTIC_EXCLUDE" \
-    --repo="$RESTIC_REPOSITORY" \
-    $NCPATH/config \
-    $NCPATH/data \
-    $NCPATH/themes \
-
-# Backup Nextcloud Database
-
-RESTIC_REPOSITORY=$RESTIC_REPOSITORY \
-    /bin/sh ./database-backup.sh \
-        -p $DB_PASS -d $DB -u $DB_USER
+### Backup Nextcloud Database {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/name=postgresql -o name)
+kubectl exec -n nextcloud $POD --                       \
+    /bin/bash -c "PGPASSWORD=$password                  \
+                 /opt/bitnami/postgresql/bin/pg_dump    \
+                 -U$username $database"                 \
+    | restic backup                                         \
+        --repo="$RESTIC_REPOSITORY"                         \
+        --verbose                                           \
+        --stdin                                             \
+        --stdin-filename "$database-database.bak.sql"
+### }
  
-### Disable Maintenance Mode
-/bin/sh ./maintenance-mode.sh -0
-### <<<<<<<<<<<<<<<<<<<<<<<<
+### Disable Maintenance Mode {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/component=app -o name)
+kubectl exec -n nextcloud $POD -- \
+    su - -s '/bin/sh' www-data -c \
+        "php -d memory_limit=-1 \
+         /var/www/html/occ maintenance:mode --off" \
+    >/dev/null 2>&1 
+### }
