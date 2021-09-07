@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# Path on host to nextcloud volume
+NCPATH="{{ nextcloud_data_path }}"
+
+# Restic Opts
+RESTIC_REPOSITORY="sftp:{{ restic_ssh_host }}:{{ restic_repositories[nextcloud_repository].name }}"
+RESTIC_EXCLUDE=
+
+# DATABASE OPTS
+DB="{{ nextcloud_db }}"
+DB_USER="{{ nextcloud_db_user }}"
+DB_PASS="{{ nextcloud_db_pass }}"
+
+### Enable Maintenance Mode {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/component=app -o name)
+kubectl exec -n nextcloud $POD -- \
+    su - -s '/bin/sh' www-data -c \
+        "php -d memory_limit=-1 \
+         /var/www/html/occ maintenance:mode --on" \
+    >/dev/null 2>&1 
+### }
+
+### Backup Nextcloud Data {
+RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
+    restic backup                   \
+    --exclude="$RESTIC_EXCLUDE"     \
+    --repo="$RESTIC_REPOSITORY"     \
+    --verbose                       \
+    $NCPATH/config                  \
+    $NCPATH/data                    \
+    $NCPATH/themes                  
+### }
+
+### Backup Nextcloud Database {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/name=postgresql -o name)
+kubectl exec -n nextcloud $POD --                       \
+    /bin/bash -c "PGPASSWORD=$password                  \
+                 /opt/bitnami/postgresql/bin/pg_dump    \
+                 -U$username $database"                 \
+                 |
+RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
+     restic backup                                          \
+        --repo="$RESTIC_REPOSITORY"                         \
+        --verbose                                           \
+        --stdin                                             \
+        --stdin-filename "$database-database.bak.sql"
+### }
+ 
+### Disable Maintenance Mode {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/component=app -o name)
+kubectl exec -n nextcloud $POD -- \
+    su - -s '/bin/sh' www-data -c \
+        "php -d memory_limit=-1 \
+         /var/www/html/occ maintenance:mode --off" \
+    >/dev/null 2>&1 
+### }

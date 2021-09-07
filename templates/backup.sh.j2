@@ -1,0 +1,25 @@
+#!/bin/sh
+
+export RESTIC_REPOSITORY="sftp:{{ restic_ssh_host }}:{{ restic_repository['name'] }}"
+export RESTIC_PASSWORD="{{ restic_repository['password'] }}"
+
+restic check || exit 2
+{# Backup all folders #}
+{% if 'folders' in restic_repository %}
+restic backup --verbose \
+{% for folder in restic_repository['folders'] %}
+    {{folder}} \
+{% endfor %}
+{% endif %}
+{# Forget old snapshots #}
+{% if restic_forget %}
+restic forget \
+    --keep-daily=7
+    --keep-weekly=4
+    --keep-monthly=6
+{% endif %}
+{# Prune forgotten snapshots #}
+{% if restic_prune %}
+restic prune
+{% endif %}
+
