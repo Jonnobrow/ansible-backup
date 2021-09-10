@@ -37,16 +37,16 @@ RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
 POD=$(kubectl get pods -n nextcloud \
       -l app.kubernetes.io/name=postgresql -o name)
 kubectl exec -n nextcloud $POD --                       \
-    /bin/bash -c "PGPASSWORD=$password                  \
+    /bin/bash -c "PGPASSWORD=$DB_PASS                  \
                  /opt/bitnami/postgresql/bin/pg_dump    \
-                 -U$username $database"                 \
+                 -U$DB_USER $DB"                 \
                  |
 RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
      restic backup                                          \
         --repo="$RESTIC_REPOSITORY"                         \
         --verbose                                           \
         --stdin                                             \
-        --stdin-filename "$database-database.bak.sql"
+        --stdin-filename "$DB-database.bak.sql"
 ### }
  
 ### Disable Maintenance Mode {

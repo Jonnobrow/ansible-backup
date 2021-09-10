@@ -11,14 +11,16 @@ restic backup --verbose \
     {{folder}} \
 {% endfor %}
 {% endif %}
-{# Forget old snapshots #}
+
+
 {% if restic_forget %}
 restic forget \
     --keep-daily=7
     --keep-weekly=4
     --keep-monthly=6
 {% endif %}
-{# Prune forgotten snapshots #}
+
+
 {% if restic_prune %}
 restic prune
 {% endif %}
