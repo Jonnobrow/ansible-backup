@@ -12,5 +12,6 @@ restic_ssh_host: backup
 restic_ssh_port: 22
 restic_ssh_private_key_path: /root/.ssh/backup
 
+nextcloud_enabled: false
 nextcloud_db: nextcloud
 nextcloud_db_user: nextcloud
