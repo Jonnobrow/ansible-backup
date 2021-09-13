@@ -16,6 +16,8 @@
               HostName {{ ssh_hostname }}
               IdentityFile {{ ssh_private_key_path }}
               Port {{ ssh_port }}
+              ServerAliveInterval 30
+              ServerAliveCountMax 10
 
 - name: Add SSH private key
   template:

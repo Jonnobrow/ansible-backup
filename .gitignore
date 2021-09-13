@@ -1,2 +1,3 @@
 *.config.yml
 !default.config.yml
+config.yml
