@@ -1,46 +1,64 @@
 ---
-- name: Check if restic is installed
-  stat:
-    path: '{{ restic_path }}'
-  register: restic_binary
-
-- include_tasks: install.yml
-  when: not restic_binary.stat.exists or restic_install
-
 - name: Create .ssh directory if it doesn't exist
   file:
-    path: '{{restic_user_home}}/.ssh'
+    path: '{{backup_user_home}}/.ssh'
     state: directory
     mode: '0700'
-    owner: '{{restic_user}}'
-    group: '{{restic_user}}'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
 
 - name: Insert Backup Server Host into .ssh/config
   blockinfile:
-    path: '{{restic_user_home}}/.ssh/config'
+    path: '{{backup_user_home}}/.ssh/config'
     block: |
-      Host {{ restic_ssh_host }}
-              User {{ restic_ssh_user }}
-              HostName {{ restic_ssh_hostname }}
-              IdentityFile {{ restic_ssh_private_key_path }}
-              Port {{ restic_ssh_port }}
+      Host {{ ssh_host }}
+              User {{ ssh_user }}
+              HostName {{ ssh_hostname }}
+              IdentityFile {{ ssh_private_key_path }}
+              Port {{ ssh_port }}
 
 - name: Add SSH private key
   template:
     src: ssh_private_key.j2
-    dest: '{{ restic_ssh_private_key_path }}'
+    dest: '{{ ssh_private_key_path }}'
     mode: '0600'
-    owner: '{{restic_user}}'
-    group: '{{restic_user}}'
-  when: restic_ssh_private_key is defined
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
+  when: ssh_private_key is defined
 
-- name: Create backup scripts
+- name: Create restic backup scripts
   template:
-    src: backup.sh.j2
-    dest: '{{restic_user_home}}/backup-{{ item.name }}-auto.sh'
+    src: restic-backup.sh.j2
+    dest: '{{backup_user_home}}/backup-{{ item.name }}-auto.sh'
     mode: '0700'
-    owner: '{{restic_user}}'
-    group: '{{restic_user}}'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
   vars:
     restic_repository: '{{item}}'
   loop: '{{restic_repositories.values() | list}}'
+  when: restic
+
+- name: Create borg backup scripts
+  template:
+    src: borg-backup.sh.j2
+    dest: '{{backup_user_home}}/backup-{{ item.name }}-auto.sh'
+    mode: '0700'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
+  vars:
+    borg_repository: '{{item}}'
+  loop: '{{borg_repositories.values() | list}}'
+  when: borg
+
+- name: Create borg init scripts
+  template:
+    src: borg-init.sh.j2
+    dest: '{{backup_user_home}}/borg-init-{{ item.name }}.sh'
+    mode: '0700'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
+  vars:
+    borg_repository: '{{item}}'
+  loop: '{{ borg_repositories.values() | list }}'
+  when: borg
+

@@ -1,0 +1,34 @@
+#!/bin/sh
+
+export BORG_REPO="ssh://{{ ssh_host }}/./{{ borg_repository['name'] }}"
+export BORG_PASSPHRASE="{{ borg_repository['passphrase'] }}"
+
+{% if 'folders' in borg_repository %}
+borg create				    \
+   --verbose			    \
+   --filter AME			    \
+   --list				    \
+   --stats			        \
+   --show-rc			    \
+   --compression lz4	    \
+   --exclude-caches		    \
+                            \
+   ::'{now}'                \
+   {% for folder in borg_repository['folders'] %}
+   {{ folder }}             \
+   {% endfor %}
+   {% for exclude in borg_repository['excludes'] %}
+   --exclude {{ exclude }}  \
+   {% endfor %}
+
+{% endif %}
+
+{% if borg_prune %}
+borg prune                                  \
+  	--list                                  \
+  	--show-rc                               \
+  	--keep-daily    {{ backup_dailies }}    \
+  	--keep-weekly   {{ backup_weeklies}}    \
+  	--keep-monthly  {{ backup_monthlies}}   \
+
+{% endif %}

@@ -2,7 +2,7 @@
 - name: Add nextcloud.sh to backup scripts folder
   template:
     src: nextcloud.sh.j2
-    dest: '{{restic_user_home}}/backup-nextcloud.sh'
-    owner: '{{ restic_user }}'
-    group: '{{ restic_user }}'
+    dest: '{{backup_user_home}}/backup-nextcloud.sh'
+    owner: '{{ backup_user }}'
+    group: '{{ backup_user }}'
     mode: '0700'

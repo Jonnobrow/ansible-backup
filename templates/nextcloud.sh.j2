@@ -3,9 +3,17 @@
 # Path on host to nextcloud volume
 NCPATH="{{ nextcloud_data_path }}"
 
+{% if restic %}
 # Restic Opts
-RESTIC_REPOSITORY="sftp:{{ restic_ssh_host }}:{{ restic_repositories[nextcloud_repository].name }}"
+RESTIC_REPOSITORY="sftp:{{ ssh_host }}:{{ restic_repositories[nextcloud_repository].name }}"
 RESTIC_EXCLUDE=
+{% endif %}
+
+{% if borg %}
+# Borg Opts
+export BORG_REPO="ssh://{{ ssh_host }}/./{{ borg_repositories[nextcloud_repository].name }}"
+export BORG_PASSPHRASE="{{ borg_repositories[nextcloud_repository].passphrase }}"
+{% endif %}
 
 # DATABASE OPTS
 DB="{{ nextcloud_db }}"
@@ -23,14 +31,28 @@ kubectl exec -n nextcloud $POD -- \
 ### }
 
 ### Backup Nextcloud Data {
+{% if restic %}
 RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
     restic backup                   \
     --exclude="$RESTIC_EXCLUDE"     \
     --repo="$RESTIC_REPOSITORY"     \
     --verbose                       \
+{% elif borg %}
+    borg create \
+    --verbose			    \
+    --filter AME			    \
+    --list				    \
+    --stats			        \
+    --show-rc			    \
+    --compression lz4	    \
+    --exclude-caches		    \
+                             \
+    ::'{now}'                \
+{%  endif %}
     $NCPATH/config                  \
     $NCPATH/data                    \
     $NCPATH/themes                  
+
 ### }
 
 ### Backup Nextcloud Database {
@@ -40,14 +62,39 @@ kubectl exec -n nextcloud $POD --                       \
     /bin/bash -c "PGPASSWORD=$DB_PASS                  \
                  /opt/bitnami/postgresql/bin/pg_dump    \
                  -U$DB_USER $DB"                 \
-                 |
+{% if restic %}
+                 | \
 RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
      restic backup                                          \
         --repo="$RESTIC_REPOSITORY"                         \
         --verbose                                           \
         --stdin                                             \
         --stdin-filename "$DB-database.bak.sql"
+{% elif borg %}
+                 | \
+     borg create   \
+        --verbose \
+        --filter AME			    \
+        --list				    \
+        --stats			        \
+        --show-rc			    \
+        --compression lz4	    \
+        --exclude-caches		    \
+                                 \
+        ::'{now}'                \
+        --stdin-name "$DB-database.bak.sql" \
+        - 
+{% endif %}
 ### }
+
+{% if borg and borg_prune %}
+borg prune                                  \
+  	--list                                  \
+  	--show-rc                               \
+  	--keep-daily    {{ backup_dailies }}    \
+  	--keep-weekly   {{ backup_weeklies}}    \
+  	--keep-monthly  {{ backup_monthlies}}   \
+{% endif %}
  
 ### Disable Maintenance Mode {
 POD=$(kubectl get pods -n nextcloud \
