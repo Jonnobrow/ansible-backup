@@ -13,7 +13,7 @@ borg create				    \
    --compression lz4	    \
    --exclude-caches		    \
                             \
-   ::'{now}'                \
+   ::'{{borg_repository['name']}}-{now}'                \
    {% for folder in borg_repository['folders'] %}
    {{ folder }}             \
    {% endfor %}
@@ -30,6 +30,7 @@ if [ $? -eq 0 ]; then
 borg prune                                  \
   	--list                                  \
   	--show-rc                               \
+    --prefix  {{borg_repository['name']}}   \
   	--keep-daily    {{ backup_dailies }}    \
   	--keep-weekly   {{ backup_weeklies}}    \
   	--keep-monthly  {{ backup_monthlies}}   \

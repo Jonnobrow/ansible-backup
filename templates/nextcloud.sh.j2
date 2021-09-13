@@ -47,7 +47,7 @@ RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
     --compression lz4	    \
     --exclude-caches		    \
                              \
-    ::'{now}'                \
+    ::'nextcloud-data-{now}'                \
 {%  endif %}
     $NCPATH/config                  \
     $NCPATH/data                    \
@@ -81,7 +81,7 @@ RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
         --compression lz4	    \
         --exclude-caches		    \
                                  \
-        ::'{now}'                \
+        ::'nextcloud-db-{now}'                \
         --stdin-name "$DB-database.bak.sql" \
         - 
 {% endif %}
@@ -91,9 +91,17 @@ RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
 borg prune                                  \
   	--list                                  \
   	--show-rc                               \
+    --prefix 'nextcloud-data'               \
   	--keep-daily    {{ backup_dailies }}    \
   	--keep-weekly   {{ backup_weeklies}}    \
-  	--keep-monthly  {{ backup_monthlies}}   \
+  	--keep-monthly  {{ backup_monthlies}}   
+borg prune                                  \
+  	--list                                  \
+  	--show-rc                               \
+    --prefix 'nextcloud-db'                 \
+  	--keep-daily    {{ backup_dailies }}    \
+  	--keep-weekly   {{ backup_weeklies}}    \
+  	--keep-monthly  {{ backup_monthlies}}   
 {% endif %}
  
 ### Disable Maintenance Mode {
