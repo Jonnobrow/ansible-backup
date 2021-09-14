@@ -6,3 +6,15 @@
     owner: '{{ backup_user }}'
     group: '{{ backup_user }}'
     mode: '0700'
+
+- name: Nextcloud Cron Entry
+  cron:
+    name: "Run backup script for nextcloud"
+    minute: "{{ cron_minute }}"
+    hour: "{{cron_hour}}"
+    day: "{{cron_day}}"
+    weekday: "{{cron_weekday}}"
+    month: "{{cron_month}}"
+    job: "{{backup_user_home}}/backup-nextcloud.sh"
+    cron_file: "{{ cron_file }}"
+  when: cron_enabled

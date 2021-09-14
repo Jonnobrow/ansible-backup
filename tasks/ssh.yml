@@ -1,0 +1,31 @@
+---
+- name: Create .ssh directory if it doesn't exist
+  file:
+    path: '{{backup_user_home}}/.ssh'
+    state: directory
+    mode: '0700'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
+
+- name: Insert Backup Server Host into .ssh/config
+  blockinfile:
+    path: '{{backup_user_home}}/.ssh/config'
+    block: |
+      Host {{ ssh_host }}
+              User {{ ssh_user }}
+              HostName {{ ssh_hostname }}
+              IdentityFile {{ ssh_private_key_path }}
+              Port {{ ssh_port }}
+              ServerAliveInterval 30
+              ServerAliveCountMax 10
+
+- name: Add SSH private key
+  template:
+    src: ssh_private_key.j2
+    dest: '{{ ssh_private_key_path }}'
+    mode: '0600'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
+  when: ssh_private_key is defined
+
+

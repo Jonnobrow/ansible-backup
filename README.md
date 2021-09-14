@@ -28,7 +28,8 @@ ansible-playbook -i inventory playbook.yaml
 
 ## Available Variables (Global)
 
-**Working Defaults**:
+### Working Defaults
+
 - `backup_user`: (default: `root`) User to install scripts as
 - `backup_user_home`: (default: `/root`) Path to `backup_user`s home directory
 - `backup_dailies`: (default: `7`) Number of daily backups to keep
@@ -39,9 +40,15 @@ ansible-playbook -i inventory playbook.yaml
 - `ssh_port`: (default: `23`) Port for SSH host (23 because of Hetzner)
 - `ssh_private_key_path`: (default: `/root/.ssh/backup`) Path, with filename, 
   for the ssh private key used to connect to remote repository
+- `cron_enabled`: (default: `true`) Enables crontab to run each script
+- `cron_minute`: (default: `"0"`)
+- `cron_hour`: (default: `"*/6"`)
+- `cron_day`: (default: `"*"`)
+- `cron_weekday`: (default: `"*"`)
+- `cron_month`: (default: `"*"`)
+- `cron_file`: (default: `"automated_backups"`) Name or path to cron file
 
-
-**No Default and Required**:
+### Required and No Default
 - `ssh_user`: (default: none) User for SSH to remote repo
 - `ssh_hostname`: (default: none) Hostname for SSH server
 - `ssh_private_key`: (default: none) Body of the SSH private key file
