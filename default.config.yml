@@ -29,6 +29,11 @@ ssh_private_key_path: /root/.ssh/backup
 nextcloud_enabled: false
 nextcloud_db: nextcloud
 nextcloud_db_user: nextcloud
+nextcloud_cron_minute: "30"
+nextcloud_cron_hour: "*/6"
+nextcloud_cron_day: "*"
+nextcloud_cron_weekday: "*"
+nextcloud_cron_month: "*"
 
 cron_enabled: true
 cron_minute: "0"
