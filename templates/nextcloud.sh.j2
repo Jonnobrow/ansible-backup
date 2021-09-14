@@ -5,8 +5,9 @@ NCPATH="{{ nextcloud_data_path }}"
 
 {% if restic %}
 # Restic Opts
-RESTIC_REPOSITORY="sftp:{{ ssh_host }}:{{ restic_repositories[nextcloud_repository].name }}"
-RESTIC_EXCLUDE=
+export RESTIC_REPOSITORY="sftp:{{ ssh_host }}:{{ restic_repositories[nextcloud_repository].name }}"
+export RESTIC_EXCLUDE=
+export RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
 {% endif %}
 
 {% if borg %}
@@ -23,31 +24,29 @@ DB_PASS="{{ nextcloud_db_pass }}"
 ### Enable Maintenance Mode {
 POD=$(kubectl get pods -n nextcloud \
       -l app.kubernetes.io/component=app -o name)
-kubectl exec -n nextcloud $POD -- \
-    su - -s '/bin/sh' www-data -c \
-        "php -d memory_limit=-1 \
-         /var/www/html/occ maintenance:mode --on" \
+kubectl exec -n nextcloud $POD --                   \
+    su - -s '/bin/sh' www-data -c                   \
+        "php -d memory_limit=-1                     \
+         /var/www/html/occ maintenance:mode --on"   \
     >/dev/null 2>&1 
 ### }
 
 ### Backup Nextcloud Data {
 {% if restic %}
-RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
     restic backup                   \
     --exclude="$RESTIC_EXCLUDE"     \
-    --repo="$RESTIC_REPOSITORY"     \
     --verbose                       \
 {% elif borg %}
-    borg create \
-    --verbose			    \
-    --filter AME			    \
-    --list				    \
-    --stats			        \
-    --show-rc			    \
-    --compression lz4	    \
-    --exclude-caches		    \
-                             \
-    ::'nextcloud-data-{now}'                \
+    borg create                     \
+    --verbose			            \
+    --filter AME			        \
+    --list				            \
+    --stats			                \
+    --show-rc			            \
+    --compression lz4	            \
+    --exclude-caches		        \
+                                    \
+    ::'nextcloud-data-{now}'        \
 {%  endif %}
     $NCPATH/config                  \
     $NCPATH/data                    \
@@ -58,31 +57,30 @@ RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
 ### Backup Nextcloud Database {
 POD=$(kubectl get pods -n nextcloud \
       -l app.kubernetes.io/name=postgresql -o name)
-kubectl exec -n nextcloud $POD --                       \
-    /bin/bash -c "PGPASSWORD=$DB_PASS                  \
-                 /opt/bitnami/postgresql/bin/pg_dump    \
-                 -U$DB_USER $DB"                 \
+kubectl exec -n nextcloud $POD --                           \
+    /bin/bash -c "PGPASSWORD=$DB_PASS                       \
+                 /opt/bitnami/postgresql/bin/pg_dump        \
+                 -U$DB_USER $DB"                            \
 {% if restic %}
-                 | \
-RESTIC_PASSWORD="{{ restic_repositories[nextcloud_repository].password }}" \
+                 |                                          \
      restic backup                                          \
         --repo="$RESTIC_REPOSITORY"                         \
         --verbose                                           \
         --stdin                                             \
         --stdin-filename "$DB-database.bak.sql"
 {% elif borg %}
-                 | \
-     borg create   \
-        --verbose \
-        --filter AME			    \
-        --list				    \
-        --stats			        \
-        --show-rc			    \
-        --compression lz4	    \
-        --exclude-caches		    \
-                                 \
-        ::'nextcloud-db-{now}'                \
+                 |                          \
+     borg create                            \
+        --verbose                           \
+        --filter AME			            \
+        --list				                \
+        --stats			                    \
+        --show-rc			                \
+        --compression lz4	                \
+        --exclude-caches		            \
         --stdin-name "$DB-database.bak.sql" \
+                                            \
+        ::'nextcloud-db-{now}'              \
         - 
 {% endif %}
 ### }
