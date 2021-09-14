@@ -17,4 +17,5 @@
     month: "{{cron_month}}"
     job: "{{backup_user_home}}/backup-nextcloud.sh"
     cron_file: "{{ cron_file }}"
+    user: "{{ backup_user }}"
   when: cron_enabled
