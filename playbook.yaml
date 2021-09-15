@@ -9,7 +9,11 @@
         - "{{ playbook_dir }}/config.yml"
       tags: ['always']
   tasks:
+    - import_tasks: tasks/ssh.yml
     - import_tasks: tasks/nextcloud.yml
       when: nextcloud_enabled
-    - import_tasks: tasks/main.yml
+    - import_tasks: tasks/borg.yml
+      when: borg
+    - import_tasks: tasks/restic.yml
+      when: restic
     

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+export BORG_REPO="ssh://{{ ssh_host }}/./{{ borg_repository['name'] }}"
+export BORG_PASSPHRASE="{{ borg_repository['passphrase'] }}"
+
+borg init --encryption=repokey-blake2
+
+borg key export $BORG_REPO {{ borg_repository['key_backup_path'] }} --paper
