@@ -18,7 +18,7 @@ borg create				    \
    {{ folder }}             \
    {% endfor %}
    {% for exclude in borg_repository['excludes'] %}
-   --exclude {{ exclude }}  \
+   --exclude '{{ exclude }}'  \
    {% endfor %}
 
 {% endif %}
