@@ -1,0 +1,6 @@
+---
+
+- name: install | Install borg
+  ansible.builtin.apt:
+    name: borgbackup
+    state: present

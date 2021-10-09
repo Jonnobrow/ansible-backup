@@ -1,0 +1,36 @@
+---
+- name: borg | Create borg init scripts
+  template:
+    src: borg-init.sh.j2
+    dest: '{{backup_user_home}}/borg-init-{{ item.name }}.sh'
+    mode: '0700'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
+  vars:
+    borg_repository: '{{item}}'
+  loop: '{{ borg_repositories.values() | list }}'
+
+- name: borg | Create borg backup scripts
+  template:
+    src: borg-backup.sh.j2
+    dest: '{{backup_user_home}}/backup-{{ item.name }}-auto.sh'
+    mode: '0700'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
+  vars:
+    borg_repository: '{{item}}'
+  loop: '{{borg_repositories.values() | list}}'
+
+- name: borg | Cron Borg Entires
+  cron:
+    name: "Run backup script for {{ item.name }}"
+    minute: "{{ cron_minute }}"
+    hour: "{{cron_hour}}"
+    day: "{{cron_day}}"
+    weekday: "{{cron_weekday}}"
+    month: "{{cron_month}}"
+    job: "{{backup_user_home}}/backup-{{item.name}}-auto.sh"
+    cron_file: "{{ cron_file }}"
+    user: "{{ backup_user }}"
+  when: cron_enabled
+  loop: '{{ borg_repositories.values() | list }}'

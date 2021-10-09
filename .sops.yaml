@@ -1,0 +1,6 @@
+creation_rules:
+- path_regex: .*\.ya?ml
+  pgp: >-
+    DE99604016EF8893AD54FDE83BC85C121EA96233
+
+

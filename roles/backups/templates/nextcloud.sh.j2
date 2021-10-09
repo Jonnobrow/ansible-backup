@@ -1,0 +1,95 @@
+#!/bin/sh
+
+# Path on host to nextcloud volume
+NCPATH="{{ nextcloud_data_path }}"
+
+{% if borg %}
+# Borg Opts
+export BORG_REPO="ssh://{{ ssh_host }}/./{{ borg_repositories[nextcloud_repository].name }}"
+export BORG_PASSPHRASE="{{ borg_repositories[nextcloud_repository].passphrase }}"
+{% endif %}
+
+# DATABASE OPTS
+DB="{{ nextcloud_db }}"
+DB_USER="{{ nextcloud_db_user }}"
+DB_PASS="{{ nextcloud_db_pass }}"
+
+### Enable Maintenance Mode {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/component=app -o name)
+kubectl exec -n nextcloud $POD --                   \
+    su - -s '/bin/sh' www-data -c                   \
+        "php -d memory_limit=-1                     \
+         /var/www/html/occ maintenance:mode --on"   \
+    >/dev/null 2>&1 
+### }
+
+### Backup Nextcloud Data {
+{% if borg %}
+    borg create                     \
+    --verbose			            \
+    --filter AME			        \
+    --list				            \
+    --stats			                \
+    --show-rc			            \
+    --compression lz4	            \
+    --exclude-caches		        \
+                                    \
+    ::'nextcloud-data-{now}'        \
+    $NCPATH/config                  \
+    $NCPATH/data                    \
+    $NCPATH/themes                  
+{% endif %}
+
+### }
+
+### Backup Nextcloud Database {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/name=postgresql -o name)
+kubectl exec -n nextcloud $POD --                           \
+    /bin/bash -c "PGPASSWORD=$DB_PASS                       \
+                 /opt/bitnami/postgresql/bin/pg_dump        \
+                 -U$DB_USER $DB"                            \
+{% if borg %}
+                 |                          \
+     borg create                            \
+        --verbose                           \
+        --filter AME			            \
+        --list				                \
+        --stats			                    \
+        --show-rc			                \
+        --compression lz4	                \
+        --exclude-caches		            \
+        --stdin-name "$DB-database.bak.sql" \
+                                            \
+        ::'nextcloud-db-{now}'              \
+        - 
+{% endif %}
+### }
+
+{% if borg and borg_prune %}
+borg prune                                  \
+  	--list                                  \
+  	--show-rc                               \
+    --prefix 'nextcloud-data'               \
+  	--keep-daily    {{ backup_dailies }}    \
+  	--keep-weekly   {{ backup_weeklies}}    \
+  	--keep-monthly  {{ backup_monthlies}}   
+borg prune                                  \
+  	--list                                  \
+  	--show-rc                               \
+    --prefix 'nextcloud-db'                 \
+  	--keep-daily    {{ backup_dailies }}    \
+  	--keep-weekly   {{ backup_weeklies}}    \
+  	--keep-monthly  {{ backup_monthlies}}   
+{% endif %}
+ 
+### Disable Maintenance Mode {
+POD=$(kubectl get pods -n nextcloud \
+      -l app.kubernetes.io/component=app -o name)
+kubectl exec -n nextcloud $POD -- \
+    su - -s '/bin/sh' www-data -c \
+        "php -d memory_limit=-1 \
+         /var/www/html/occ maintenance:mode --off" \
+    >/dev/null 2>&1 
+### }

@@ -1,0 +1,17 @@
+---
+
+- include: install-borg.yml
+  tags:
+    - install-borg
+
+- include: ssh.yml
+  tags:
+    - ssh
+      
+- include: borg.yml
+  tags:
+    - borg
+
+- include: nextcloud.yml
+  tags:
+    - nextcloud

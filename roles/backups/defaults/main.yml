@@ -1,0 +1,33 @@
+---
+borg: false
+borg_path: /usr/bin/borg
+borg_install: false
+borg_repositories: []
+borg_prune: true
+
+backup_user: root
+backup_user_home: /root
+backup_dailies: 7
+backup_weeklies: 4
+backup_monthlies: 6
+
+ssh_host: backup
+ssh_port: 23
+ssh_private_key_path: /root/.ssh/backup
+
+nextcloud_enabled: false
+nextcloud_db: nextcloud
+nextcloud_db_user: nextcloud
+nextcloud_cron_minute: "30"
+nextcloud_cron_hour: "*/6"
+nextcloud_cron_day: "*"
+nextcloud_cron_weekday: "*"
+nextcloud_cron_month: "*"
+
+cron_enabled: true
+cron_minute: "0"
+cron_hour: "*/6"
+cron_day: "*"
+cron_weekday: "*"
+cron_month: "*"
+cron_file: "automated_backups"

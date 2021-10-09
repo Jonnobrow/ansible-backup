@@ -1,0 +1,20 @@
+---
+version: '3'
+
+vars:
+  ANSIBLE_DIR:
+    sh: "git rev-parse --show-toplevel"
+  ANSIBLE_INVENTORY_DIR: "{{.ANSIBLE_DIR}}/inventory"
+  ANSIBLE_PLAYBOOK_DIR: "{{.ANSIBLE_DIR}}/playbooks"
+
+env:
+  ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
+
+
+tasks:
+
+  playbook:backup-install:
+    desc: Install backup scripts on all hosts
+    cmds:
+    - "ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/coffee-shop/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/install.yaml"
+    silent: true
