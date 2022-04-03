@@ -1,5 +1,5 @@
 ---
-version: '3'
+version: "3"
 
 vars:
   ANSIBLE_DIR:
@@ -10,11 +10,17 @@ vars:
 env:
   ANSIBLE_CONFIG: "{{.ANSIBLE_DIR}}/ansible.cfg"
 
-
 tasks:
-
-  playbook:backup-install:
+  backup-install:
     desc: Install backup scripts on all hosts
     cmds:
-    - "ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/coffee-shop/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/install.yaml"
+      - "ansible-playbook -i {{.ANSIBLE_INVENTORY_DIR}}/coffee-shop/hosts.yml {{.ANSIBLE_PLAYBOOK_DIR}}/install.yaml"
+    silent: true
+
+  backup-status:
+    desc: Get the status of all backups
+    cmds:
+      - "ansible cappuccino -a '/root/backup-cappuccino-status.sh' -K"
+      - "ansible cappuccino -a '/root/backup-photos-status.sh' -K"
+      - "ansible mocha -a '/root/backup-mocha-status.sh' -K"
     silent: true

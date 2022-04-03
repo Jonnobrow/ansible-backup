@@ -21,6 +21,17 @@
     borg_repository: '{{item}}'
   loop: '{{borg_repositories.values() | list}}'
 
+- name: borg | Create borg status scripts
+  template:
+    src: borg-status.sh.j2
+    dest: '{{backup_user_home}}/backup-{{ item.name }}-status.sh'
+    mode: '0700'
+    owner: '{{backup_user}}'
+    group: '{{backup_user}}'
+  vars:
+    borg_repository: '{{item}}'
+  loop: '{{borg_repositories.values() | list}}'
+
 - name: borg | Cron Borg Entires
   cron:
     name: "Run backup script for {{ item.name }}"

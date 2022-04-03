@@ -29,8 +29,8 @@ sops:
     azure_kv: []
     hc_vault: []
     age: []
-    lastmodified: "2021-10-16T11:28:19Z"
-    mac: ENC[AES256_GCM,data:UMXe4WCChxbvlmZW/mNI/ey3BKLODBn46JqJOcM9E7GkESejPenzKyE6Hno6XhQoBmAi9azoW1KT+zFGIRa/qOBf1VSI57kp0myzJe80efjWO9jh3ufg5bRRcOtrgTtFRyd3zBQ0+o+PLItbc9+2jPInocY8P4YIdTCMtlZla4g=,iv:g6Wl5lr23j0/6qUiuuxSjViqKzx07DQi7eC5DM4qktI=,tag:dyDcJ6i8KAW7qj2RYTDyWQ==,type:str]
+    lastmodified: "2022-05-20T19:36:14Z"
+    mac: ENC[AES256_GCM,data:nUWPm3Xy2qINN8ylxZs6sFhDo7A1rgsS7MKeBKxP+d5pJBO1SIXzuBINYpGLIR4j2JcHCaKe/75iFtFr5oHVe47hSF+kRa9Dd/PSXs/BOTIssvMA/Ed66ealErV2p+C9SBSAOlQpAMzXjNs3UmMouQK/DogkJipKknmxU4oX+RI=,iv:gUhFxt42EGPPHc5zwM2zT95Opt+I2/+BXQ1F1Ck8q1Q=,tag:UHKMDdiiTyHaH699UFwGVg==,type:str]
     pgp:
         - created_at: "2021-10-09T14:47:46Z"
           enc: |
@@ -53,4 +53,4 @@ sops:
             -----END PGP MESSAGE-----
           fp: DE99604016EF8893AD54FDE83BC85C121EA96233
     unencrypted_suffix: _unencrypted
-    version: 3.7.1
+    version: 3.7.2
