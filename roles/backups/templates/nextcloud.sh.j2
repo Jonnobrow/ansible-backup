@@ -2,6 +2,7 @@
 
 # Path on host to nextcloud volume
 NCPATH="{{ nextcloud_data_path }}"
+NCDBPATH="{{ nextcloud_db_folder }}"
 
 {% if borg %}
 # Borg Opts
@@ -21,7 +22,7 @@ kubectl exec -n nextcloud $POD --                   \
     su - -s '/bin/sh' www-data -c                   \
         "php -d memory_limit=-1                     \
          /var/www/html/occ maintenance:mode --on"   \
-    >/dev/null 2>&1 
+    >/dev/null 2>&1
 ### }
 
 ### Backup Nextcloud Data {
@@ -38,7 +39,8 @@ kubectl exec -n nextcloud $POD --                   \
     ::'nextcloud-data-{now}'        \
     $NCPATH/config                  \
     $NCPATH/data                    \
-    $NCPATH/themes                  
+    $NCPATH/themes                  \
+    $NCDBPATH
 {% endif %}
 
 ### }
@@ -63,7 +65,7 @@ kubectl exec -n nextcloud $POD --                           \
         --stdin-name "$DB-database.bak.sql" \
                                             \
         ::'nextcloud-db-{now}'              \
-        - 
+        -
 {% endif %}
 ### }
 
@@ -74,16 +76,16 @@ borg prune                                  \
     --prefix 'nextcloud-data'               \
   	--keep-daily    {{ backup_dailies }}    \
   	--keep-weekly   {{ backup_weeklies}}    \
-  	--keep-monthly  {{ backup_monthlies}}   
+  	--keep-monthly  {{ backup_monthlies}}
 borg prune                                  \
   	--list                                  \
   	--show-rc                               \
     --prefix 'nextcloud-db'                 \
   	--keep-daily    {{ backup_dailies }}    \
   	--keep-weekly   {{ backup_weeklies}}    \
-  	--keep-monthly  {{ backup_monthlies}}   
+  	--keep-monthly  {{ backup_monthlies}}
 {% endif %}
- 
+
 ### Disable Maintenance Mode {
 POD=$(kubectl get pods -n nextcloud \
       -l app.kubernetes.io/component=app -o name)
@@ -91,5 +93,5 @@ kubectl exec -n nextcloud $POD -- \
     su - -s '/bin/sh' www-data -c \
         "php -d memory_limit=-1 \
          /var/www/html/occ maintenance:mode --off" \
-    >/dev/null 2>&1 
+    >/dev/null 2>&1
 ### }
