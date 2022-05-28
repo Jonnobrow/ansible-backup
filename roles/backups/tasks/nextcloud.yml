@@ -2,10 +2,10 @@
 - name: nextcloud | Add nextcloud.sh to backup scripts folder
   template:
     src: nextcloud.sh.j2
-    dest: '{{backup_user_home}}/backup-nextcloud.sh'
-    owner: '{{ backup_user }}'
-    group: '{{ backup_user }}'
-    mode: '0700'
+    dest: "{{backup_user_home}}/backup-nextcloud.sh"
+    owner: "{{ backup_user }}"
+    group: "{{ backup_user }}"
+    mode: "0700"
 
 - name: nextcloud | Nextcloud Cron Entry
   cron:
