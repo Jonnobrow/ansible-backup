@@ -2,46 +2,60 @@
 - name: borg | Create borg init scripts
   template:
     src: borg-init.sh.j2
-    dest: '{{backup_user_home}}/borg-init-{{ item.name }}.sh'
-    mode: '0700'
-    owner: '{{backup_user}}'
-    group: '{{backup_user}}'
+    dest: "{{backup_user_home}}/borg-init-{{ item.name }}.sh"
+    mode: "0700"
+    owner: "{{backup_user}}"
+    group: "{{backup_user}}"
   vars:
-    borg_repository: '{{item}}'
-  loop: '{{ borg_repositories.values() | list }}'
+    borg_repository: "{{item}}"
+  loop: "{{ borg_repositories.values() | list }}"
 
 - name: borg | Create borg backup scripts
   template:
     src: borg-backup.sh.j2
-    dest: '{{backup_user_home}}/backup-{{ item.name }}-auto.sh'
-    mode: '0700'
-    owner: '{{backup_user}}'
-    group: '{{backup_user}}'
+    dest: "{{backup_user_home}}/backup-{{ item.name }}-auto.sh"
+    mode: "0700"
+    owner: "{{backup_user}}"
+    group: "{{backup_user}}"
   vars:
-    borg_repository: '{{item}}'
-  loop: '{{borg_repositories.values() | list}}'
+    borg_repository: "{{item}}"
+  loop: "{{borg_repositories.values() | list}}"
 
 - name: borg | Create borg status scripts
   template:
     src: borg-status.sh.j2
-    dest: '{{backup_user_home}}/backup-{{ item.name }}-status.sh'
-    mode: '0700'
-    owner: '{{backup_user}}'
-    group: '{{backup_user}}'
+    dest: "{{backup_user_home}}/backup-{{ item.name }}-status.sh"
+    mode: "0700"
+    owner: "{{backup_user}}"
+    group: "{{backup_user}}"
   vars:
-    borg_repository: '{{item}}'
-  loop: '{{borg_repositories.values() | list}}'
+    borg_repository: "{{item}}"
+  loop: "{{borg_repositories.values() | list}}"
 
 - name: borg | Cron Borg Entires
   cron:
     name: "Run backup script for {{ item.name }}"
-    minute: "{{ cron_minute }}"
-    hour: "{{cron_hour}}"
-    day: "{{cron_day}}"
-    weekday: "{{cron_weekday}}"
-    month: "{{cron_month}}"
+    minute: "{{ item.cron.split(' ')[0] }}"
+    hour: "{{ item.cron.split(' ')[1] }}"
+    day: "{{ item.cron.split(' ')[2] }}"
+    weekday: "{{ item.cron.split(' ')[3] }}"
+    month: "{{ item.cron.split(' ')[4] }}"
     job: "{{backup_user_home}}/backup-{{item.name}}-auto.sh"
     cron_file: "{{ cron_file }}"
     user: "{{ backup_user }}"
-  when: cron_enabled
-  loop: '{{ borg_repositories.values() | list }}'
+  when: cron_enabled and not cronitor.enabled
+  loop: "{{ borg_repositories.values() | list }}"
+
+- name: borg | Cronitor Borg Entries
+  cron:
+    name: "Run backup script for {{ item.name }}"
+    minute: "{{ item.cron.split(' ')[0] }}"
+    hour: "{{ item.cron.split(' ')[1] }}"
+    day: "{{ item.cron.split(' ')[2] }}"
+    weekday: "{{ item.cron.split(' ')[3] }}"
+    month: "{{ item.cron.split(' ')[4] }}"
+    job: "cronitor exec {{ item.cronitor_key }} {{backup_user_home}}/backup-{{item.name}}-auto.sh"
+    cron_file: "{{ cron_file }}"
+    user: "{{ backup_user }}"
+  when: cron_enabled and cronitor.enabled
+  loop: "{{ borg_repositories.values() | list }}"

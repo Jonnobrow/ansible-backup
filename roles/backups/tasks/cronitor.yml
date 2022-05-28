@@ -1,0 +1,16 @@
+---
+- name: Cronitor | Install Cronitor Config.
+  template:
+    src: cronitor.json.j2
+    dest: /etc/cronitor/cronitor.json
+
+- name: Cronitor | Download Cronitor Archive.
+  get_url:
+    url: https://cronitor.io/dl/linux_amd64.tar.gz
+    dest: /tmp/cronitor_linux_amd64.tar.gz
+
+- name: Cronitor | Extract Cronitor.
+  ansible.builtin.unarchive:
+    src: /tmp/cronitor_linux_amd64.tar.gz
+    dest: /usr/bin/
+    remote_src: yes

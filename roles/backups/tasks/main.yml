@@ -1,13 +1,15 @@
 ---
-
 - include: install-borg.yml
   tags:
     - install-borg
 
+- include: cronitor.yml
+  when: cronitor.enabled
+
 - include: ssh.yml
   tags:
     - ssh
-      
+
 - include: borg.yml
   tags:
     - borg

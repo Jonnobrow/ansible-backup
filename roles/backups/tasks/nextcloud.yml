@@ -10,12 +10,25 @@
 - name: nextcloud | Nextcloud Cron Entry
   cron:
     name: "Run backup script for nextcloud"
-    minute: "{{ nextcloud_cron_minute }}"
-    hour: "{{ nextcloud_cron_hour }}"
-    day: "{{ nextcloud_cron_day }}"
-    weekday: "{{ nextcloud_cron_weekday }}"
-    month: "{{ nextcloud_cron_month }}"
+    minute: "{{ nextcloud_cron.split(' ')[0] }}"
+    hour: "{{ nextcloud_cron.split(' ')[1] }}"
+    day: "{{ nextcloud_cron.split(' ')[2] }}"
+    weekday: "{{ nextcloud_cron.split(' ')[3] }}"
+    month: "{{ nextcloud_cron.split(' ')[4] }}"
     job: "{{backup_user_home}}/backup-nextcloud.sh"
     cron_file: "{{ cron_file }}"
     user: "{{ backup_user }}"
-  when: cron_enabled
+  when: cron_enabled and not cronitor.enabled
+
+- name: nextcloud | Nextcloud Cronitor Entry
+  cron:
+    name: "Run backup script for nextcloud"
+    minute: "{{ nextcloud_cron.split(' ')[0] }}"
+    hour: "{{ nextcloud_cron.split(' ')[1] }}"
+    day: "{{ nextcloud_cron.split(' ')[2] }}"
+    weekday: "{{ nextcloud_cron.split(' ')[3] }}"
+    month: "{{ nextcloud_cron.split(' ')[4] }}"
+    job: "cronitor exec {{ nextcloud_cronitor_key }} {{backup_user_home}}/backup-nextcloud.sh"
+    cron_file: "{{ cron_file }}"
+    user: "{{ backup_user }}"
+  when: cron_enabled and cronitor.enabled
