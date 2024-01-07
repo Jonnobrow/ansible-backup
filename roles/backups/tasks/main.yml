@@ -1,20 +1,20 @@
 ---
-- include: install-borg.yml
+- include_tasks: install-borg.yml
   tags:
     - install-borg
 
-- include: cronitor.yml
+- include_tasks: cronitor.yml
   when: cronitor.enabled
 
-- include: ssh.yml
+- include_tasks: ssh.yml
   tags:
     - ssh
 
-- include: borg.yml
+- include_tasks: borg.yml
   tags:
     - borg
 
-- include: nextcloud.yml
+- include_tasks: nextcloud.yml
   when: nextcloud_enabled
   tags:
     - nextcloud
