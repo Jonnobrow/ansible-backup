@@ -5,9 +5,11 @@ borg_repositories:
     cappuccino:
         name: ENC[AES256_GCM,data:zvHpDpRibIY1Qg==,iv:gSlfiLsM/tCDdQ9c8luQKlU1LD/lIIrhI8WwrEV3PMU=,tag:zEATC0mYwKBuw0nKmGs0Ow==,type:str]
         folders:
-            - ENC[AES256_GCM,data:TzzJlENayBRMYqpOqRs9+g==,iv:COWuVPsS8LZDPX2JoaVGCQXxlk7xJmPy0ITQkLG50y4=,tag:I/ddhIaA8EhgEMz7tfY6Pg==,type:str]
+            - ENC[AES256_GCM,data:f6kKr3PFzVRBTYpeLiRI,iv:MFPcggHwk/jd987+d9qxWkaXovq8q4f85xyFzQYxqSU=,tag:SFiy4fn3X/7m/5zza7FCzQ==,type:str]
             - ENC[AES256_GCM,data:AmAT5BICnVkoEIam,iv:uqC5CVVgtZAfDewodzRPnWMQbvujFzyHq5GUIh5Tjz0=,tag:mGu7OWfcKGuRvV+W9TSa+w==,type:str]
-            - ENC[AES256_GCM,data:Bb9QdNQrNWoMuRVLhDwY/QPwDfrsB9+vhg==,iv:5iE3NR9Er+nMoUGwVkLafI1d3cRcTde6rYORaynMzm0=,tag:xr7Hc/G/qNMvwP1Uqv5POg==,type:str]
+            - ENC[AES256_GCM,data:U1h1Ov1RBl4AkmloC70lrdrKS46KNi8t,iv:14F1U4H8allYG54O/ZjV1Z/A2p5YmIBp6RjURDeN+Q4=,tag:DD68gcdIxEQ/siMZa79rPQ==,type:str]
+            - ENC[AES256_GCM,data:oPJj5iUqBlttPLUiC39XKQ==,iv:UxxqlPv8zFD7kdb5Htko1OeH2V11r1ENVKzXV3FFkhs=,tag:572sVYv+nHqTp08g1OqL0Q==,type:str]
+            - ENC[AES256_GCM,data:XNhKe9AyZRIB+scCowV7by8hoZQb5Q==,iv:qrfLTtq53O/6vRY7W0lu8lkpwYD2RxDlzCJrfJQBwaE=,tag:VyRG/P7cRY4QUWAHx3AscA==,type:str]
         excludes: []
         passphrase: ENC[AES256_GCM,data:4R+Nij60JA20fmTZoMEg2fsCkg==,iv:fHGHy29bPaWywh9eiNOdQm05Tk878GaJbKGr4ybLIvs=,tag:7RbUUT6ZHteZ46Y3xNm52A==,type:str]
         key_backup_path: ENC[AES256_GCM,data:gazQMYkNhhmau06OC/eB4V3v5BMwD64=,iv:VllQMsz8VjcHwjn9vwuZ5S1Oekbtvzr+dYnEEJHYIio=,tag:+ULEz1uf1HrElFhFE2iYFg==,type:str]
@@ -16,7 +18,7 @@ borg_repositories:
     photos:
         name: ENC[AES256_GCM,data:XAdl7boV,iv:TJecuGwz9iAPm9gbkT8a7Keuo1NOtvU7lmmwlH/Xno8=,tag:gzNUoG0BgtU73depmZrWoA==,type:str]
         folders:
-            - ENC[AES256_GCM,data:RZJbqKnglCcXqm+NIvwP3vQ=,iv:kwj6YvwWRZpPVKhvHwj+lSXyuWCjZmLl5iGVAtvoEoA=,tag:fLWRtYiqp2GwkaxJE/Dfvg==,type:str]
+            - ENC[AES256_GCM,data:j3CxoC15rcjX5xl54eVX7A==,iv:Q/Bk9kmcOuQV9kNqFLbq3FPqaht5RHh95k4OlWBXnEY=,tag:iI9tHUpCrD5L8YkFtaa1bw==,type:str]
         excludes:
             - ENC[AES256_GCM,data:nEpWVwLl1EMW,iv:OjNxEs9Lz2sGkI47KgzkZ7J5RMhZnyTJgKg3fWs6oqA=,tag:0aZjcx9NKRW9kMOAbllFTQ==,type:str]
         passphrase: ENC[AES256_GCM,data:UJDxSt6RX41toblwG8Q313fR20g=,iv:MSuaTE1CID7txILzQ28yzS586Ep9nWI5hYDw1DomIdk=,tag:sOrvzRQhoiE11I1fUZ8ExA==,type:str]
@@ -36,8 +38,8 @@ sops:
     azure_kv: []
     hc_vault: []
     age: []
-    lastmodified: "2022-05-28T17:33:30Z"
-    mac: ENC[AES256_GCM,data:bSIxWdXPdNZKNpw4SWNMac+BZYX0ct1Aanv8nEtRSRUj1DGaD68sMS+5btsy3IBMHJTzAzn/TTNRuRCWrWj4b/zfCZpjPl4wQCtd63GpwZYQRfRBzv1Qfc6pFXlUPYhUCtbZIZc6mRZUTNTrwMZshehANCJbw1AEtfpbPuYNWwk=,iv:SJq1NFsfWc1RGiHsoTStcom+f3O1o3LmD/eLZ3fuSDo=,tag:fN2VajMQ1pTgP0NgvQ3+4g==,type:str]
+    lastmodified: "2024-08-11T20:12:27Z"
+    mac: ENC[AES256_GCM,data:GwJBpqOCFt5JWN20AAsKqDafVOsgW4+D18em2/egvXWsWopBWk3CdtslMcUuyNOSu2YJ+fC0p35gGMwzdk+7FAqlyS/WdLFHYsH3k6Mllzr5GXz7s3bZaOXsCMecW56RFvm8UAS/T/oA2oP9BOHoZwOF9/ub2xTOjp/EzvHwdeA=,iv:mrtVF/sKZ3SDvMcT5vd7N62rgQHKIKS3Lv3z+zcwdsE=,tag:st5gLWvNBBLv4tzjj/FTFA==,type:str]
     pgp:
         - created_at: "2021-10-09T14:47:46Z"
           enc: |
@@ -60,4 +62,4 @@ sops:
             -----END PGP MESSAGE-----
           fp: DE99604016EF8893AD54FDE83BC85C121EA96233
     unencrypted_suffix: _unencrypted
-    version: 3.7.3
+    version: 3.8.1
